@@ -14,6 +14,7 @@ type Room struct {
 	HasEnemy bool
 	HasItem  bool
 	IsExit   bool
+	// you could expand with Enemy pointer here, but we spawn enemies on-the-fly
 }
 
 // Dungeon represents the full map
@@ -110,4 +111,30 @@ func (d *Dungeon) MovePlayer(direction string) {
 	d.Grid[newY][newX].Visited = true
 
 	d.DisplayCurrentRoom()
+}
+
+// CheckForEnemy returns an Enemy pointer if the current room has an enemy.
+// It also returns a boolean indicating whether there was an enemy to begin with.
+func (d *Dungeon) CheckForEnemy() (*Enemy, bool) {
+	room := &d.Grid[d.PlayerY][d.PlayerX]
+	if !room.HasEnemy {
+		return nil, false
+	}
+	// Spawn an enemy based on a difficulty factor (e.g., distance from start)
+	// compute depth as Manhattan distance from origin (0,0) as a simple heuristic
+	depthFactor := abs(d.PlayerX) + abs(d.PlayerY)
+	enemy := NewEnemy(depthFactor)
+	return enemy, true
+}
+
+// ClearEnemy clears the HasEnemy flag for current room (call after enemy defeated)
+func (d *Dungeon) ClearEnemy() {
+	d.Grid[d.PlayerY][d.PlayerX].HasEnemy = false
+}
+
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
 }
