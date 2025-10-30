@@ -42,96 +42,120 @@ func startGame() {
 	dungeon.DisplayCurrentRoom()
 
 	for {
-		// Check for enemy in the current room BEFORE prompting movement
+		// 🧟 Check for enemy in the current room BEFORE player actions
 		if enemy, ok := dungeon.CheckForEnemy(); ok {
 			fmt.Printf("\nYou encounter a %s!\n", enemy.String())
-			// Fight or flee prompt
+
 			for {
 				fmt.Print("Do you want to (f)ight or (r)un? ")
 				choiceRaw, _ := reader.ReadString('\n')
 				choice := strings.TrimSpace(choiceRaw)
 
 				if choice == "r" {
-					// Running: move to a random adjacent room if possible
-					fmt.Println("You attempt to run...")
-					// naive flee: just try to move south then north then east then west
-					// (could be improved later)
-					tried := false
+					fmt.Println("You attempt to flee...")
+					// Try to move in a random direction to simulate escaping
 					for _, dir := range []string{"s", "n", "e", "w"} {
-						// attempt move, but if wall, MovePlayer will print wall
 						prevX, prevY := dungeon.PlayerX, dungeon.PlayerY
 						dungeon.MovePlayer(dir)
-						// if position changed, we successfully fled
 						if dungeon.PlayerX != prevX || dungeon.PlayerY != prevY {
-							fmt.Println("You fled to another room.")
-							tried = true
+							fmt.Println("You successfully fled to another room!")
 							break
 						}
 					}
-					if tried {
-						break // exit the fight prompt loop (we fled)
-					}
-					// couldn't flee; continue fight prompt
-					fmt.Println("You couldn't find an escape route!")
-					continue
+					break // end the encounter
 				}
 
 				if choice == "f" {
-					// Combat loop
+					// ⚔️ Combat loop
 					for enemy.IsAlive() && player.IsAlive() {
-						// player's turn
 						dmg := player.AttackEnemy(enemy)
-						fmt.Printf("You strike the %s for %d damage. (Enemy HP: %d)\n", enemy.Name, dmg, enemy.HP)
+						fmt.Printf("You strike the %s for %d damage! (Enemy HP: %d)\n", enemy.Name, dmg, enemy.HP)
+
 						if !enemy.IsAlive() {
-							fmt.Printf("You defeated the %s!\n", enemy.Name)
-							// loot
+							fmt.Printf("🎉 You defeated the %s!\n", enemy.Name)
 							loot := enemy.PossibleLoot()
-							if loot != "" {
-								fmt.Printf("You found: %s\n", loot)
+							if loot != nil {
+								fmt.Printf("💎 You found: %s\n", loot.Name())
 								player.AddItem(loot)
 							} else {
 								fmt.Println("No loot this time.")
 							}
-							// clear enemy from room
 							dungeon.ClearEnemy()
 							break
 						}
 
-						// enemy's turn
+						// Enemy’s turn
 						edmg := enemy.AttackPlayer(player)
 						remaining := player.TakeDamage(edmg)
-						fmt.Printf("The %s hits you for %d. (Your HP: %d)\n", enemy.Name, edmg, remaining)
+						fmt.Printf("The %s hits you for %d! (Your HP: %d)\n", enemy.Name, edmg, remaining)
+
 						if !player.IsAlive() {
-							fmt.Println("You have been defeated... Game over.")
+							fmt.Println("💀 You have been defeated... Game over.")
 							return
 						}
 					}
-					// combat finished (victory or death). break fight prompt
-					break
+					break // end combat
 				}
 
-				fmt.Println("Invalid choice. Enter 'f' to fight or 'r' to run.")
-			} // end fight-or-run prompt
-		} // end if encounter
+				fmt.Println("Invalid choice. Type 'f' to fight or 'r' to run.")
+			}
+		}
 
-		// normal movement prompt
-		fmt.Print("\nMove (n/s/e/w) or q to quit, or 'stats' to view stats: ")
+		// 🎮 Player action loop
+		fmt.Print("\nAction → move (n/s/e/w), use, stats, or q to quit: ")
 		var input string
 		fmt.Scanln(&input)
 		input = strings.TrimSpace(input)
 
-		if input == "q" {
+		switch input {
+		case "q":
 			fmt.Println("You have chosen to leave the dungeon.")
-			break
-		}
-		if input == "stats" {
+			return
+
+		case "stats":
 			player.ShowStats()
 			continue
-		}
-		// if user typed nothing (enter), skip
-		if input == "" {
+
+		case "use":
+			if len(player.Inventory) == 0 {
+				fmt.Println("🎒 Your inventory is empty.")
+				continue
+			}
+
+			fmt.Println("Select an item to use:")
+			for i, item := range player.Inventory {
+				fmt.Printf("%d) %s\n", i+1, item.Name())
+			}
+
+			var choice int
+			fmt.Print("Enter number: ")
+			fmt.Scanln(&choice)
+
+			if choice < 1 || choice > len(player.Inventory) {
+				fmt.Println("Invalid choice.")
+				continue
+			}
+
+			item := player.Inventory[choice-1]
+			item.Use(player)
+
+			// Remove potions after use
+			switch item.(type) {
+			case game.Potion:
+				player.Inventory = append(player.Inventory[:choice-1], player.Inventory[choice:]...)
+			}
 			continue
+
+		default:
+			dungeon.MovePlayer(input)
+			room := dungeon.Grid[dungeon.PlayerY][dungeon.PlayerX]
+
+			if room.HasItem {
+				item := game.GenerateRandomItem()
+				fmt.Printf("💎 You found a %s!\n", item.Name())
+				player.AddItem(item)
+				room.HasItem = false
+			}
 		}
-		dungeon.MovePlayer(input)
 	}
 }

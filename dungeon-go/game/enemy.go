@@ -60,18 +60,12 @@ func (e *Enemy) AttackPlayer(p *Player) int {
 }
 
 // PossibleLoot returns a random loot string (or empty == nothing)
-func (e *Enemy) PossibleLoot() string {
+func (e *Enemy) PossibleLoot() Item {
 	chance := rand.Intn(100)
-	if chance < 50 {
-		return "" // no loot
+	if chance < 40 {
+		return nil // no loot
 	}
-	if chance < 75 {
-		return "Health Potion"
-	}
-	if chance < 90 {
-		return "Rusty Sword"
-	}
-	return "Ancient Amulet"
+	return GenerateRandomItem()
 }
 
 func (e *Enemy) String() string {

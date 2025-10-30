@@ -11,7 +11,7 @@ type Player struct {
 	HP        int
 	Attack    int
 	Defense   int
-	Inventory []string
+	Inventory []Item
 	Level     int
 }
 
@@ -22,7 +22,7 @@ func NewPlayer(name string) *Player {
 		HP:        100,
 		Attack:    10,
 		Defense:   5,
-		Inventory: []string{},
+		Inventory: []Item{},
 		Level:     1,
 	}
 }
@@ -34,7 +34,16 @@ func (p *Player) ShowStats() {
 	fmt.Printf("Attack: %d\n", p.Attack)
 	fmt.Printf("Defense: %d\n", p.Defense)
 	fmt.Printf("Level: %d\n", p.Level)
-	fmt.Printf("Inventory: %v\n\n", p.Inventory)
+
+	fmt.Println("🎒 Inventory:")
+	if len(p.Inventory) == 0 {
+		fmt.Println("  (empty)")
+	} else {
+		for i, item := range p.Inventory {
+			fmt.Printf("  %d) %s\n", i+1, item.Name())
+		}
+	}
+	fmt.Println()
 }
 
 // AttackEnemy performs an attack on the enemy and returns the damage dealt
@@ -62,7 +71,7 @@ func (p *Player) TakeDamage(damage int) int {
 }
 
 // AddItem adds an item to inventory
-func (p *Player) AddItem(item string) {
+func (p *Player) AddItem(item Item) {
 	p.Inventory = append(p.Inventory, item)
 }
 
