@@ -1,0 +1,237 @@
+{
+  "Player": {
+    "Name": "harara",
+    "HP": 100,
+    "Attack": 20,
+    "Defense": 5,
+    "Inventory": [
+      {
+        "WeaponName": "Magic Spear",
+        "Bonus": 5
+      },
+      {
+        "WeaponName": "Silver Dagger",
+        "Bonus": 5
+      }
+    ],
+    "Level": 1
+  },
+  "Dungeon": {
+    "Width": 5,
+    "Height": 5,
+    "Grid": [
+      [
+        {
+          "X": 0,
+          "Y": 0,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 1,
+          "Y": 0,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 2,
+          "Y": 0,
+          "Visited": false,
+          "HasEnemy": true,
+          "HasItem": true,
+          "IsExit": false
+        },
+        {
+          "X": 3,
+          "Y": 0,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": true,
+          "IsExit": false
+        },
+        {
+          "X": 4,
+          "Y": 0,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        }
+      ],
+      [
+        {
+          "X": 0,
+          "Y": 1,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 1,
+          "Y": 1,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": true,
+          "IsExit": false
+        },
+        {
+          "X": 2,
+          "Y": 1,
+          "Visited": false,
+          "HasEnemy": true,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 3,
+          "Y": 1,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 4,
+          "Y": 1,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        }
+      ],
+      [
+        {
+          "X": 0,
+          "Y": 2,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 1,
+          "Y": 2,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 2,
+          "Y": 2,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 3,
+          "Y": 2,
+          "Visited": false,
+          "HasEnemy": true,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 4,
+          "Y": 2,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        }
+      ],
+      [
+        {
+          "X": 0,
+          "Y": 3,
+          "Visited": true,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": true
+        },
+        {
+          "X": 1,
+          "Y": 3,
+          "Visited": true,
+          "HasEnemy": false,
+          "HasItem": true,
+          "IsExit": false
+        },
+        {
+          "X": 2,
+          "Y": 3,
+          "Visited": true,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 3,
+          "Y": 3,
+          "Visited": true,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 4,
+          "Y": 3,
+          "Visited": true,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        }
+      ],
+      [
+        {
+          "X": 0,
+          "Y": 4,
+          "Visited": true,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 1,
+          "Y": 4,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": true,
+          "IsExit": false
+        },
+        {
+          "X": 2,
+          "Y": 4,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 3,
+          "Y": 4,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        },
+        {
+          "X": 4,
+          "Y": 4,
+          "Visited": false,
+          "HasEnemy": false,
+          "HasItem": false,
+          "IsExit": false
+        }
+      ]
+    ],
+    "PlayerX": 1,
+    "PlayerY": 3
+  }
+}

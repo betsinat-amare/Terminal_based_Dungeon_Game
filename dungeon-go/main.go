@@ -53,7 +53,6 @@ func startGame() {
 
 				if choice == "r" {
 					fmt.Println("You attempt to flee...")
-					// Try to move in a random direction to simulate escaping
 					for _, dir := range []string{"s", "n", "e", "w"} {
 						prevX, prevY := dungeon.PlayerX, dungeon.PlayerY
 						dungeon.MovePlayer(dir)
@@ -62,11 +61,10 @@ func startGame() {
 							break
 						}
 					}
-					break // end the encounter
+					break
 				}
 
 				if choice == "f" {
-					// ⚔️ Combat loop
 					for enemy.IsAlive() && player.IsAlive() {
 						dmg := player.AttackEnemy(enemy)
 						fmt.Printf("You strike the %s for %d damage! (Enemy HP: %d)\n", enemy.Name, dmg, enemy.HP)
@@ -84,7 +82,6 @@ func startGame() {
 							break
 						}
 
-						// Enemy’s turn
 						edmg := enemy.AttackPlayer(player)
 						remaining := player.TakeDamage(edmg)
 						fmt.Printf("The %s hits you for %d! (Your HP: %d)\n", enemy.Name, edmg, remaining)
@@ -94,7 +91,7 @@ func startGame() {
 							return
 						}
 					}
-					break // end combat
+					break
 				}
 
 				fmt.Println("Invalid choice. Type 'f' to fight or 'r' to run.")
@@ -102,7 +99,7 @@ func startGame() {
 		}
 
 		// 🎮 Player action loop
-		fmt.Print("\nAction → move (n/s/e/w), use, stats, or q to quit: ")
+		fmt.Print("\nAction → move (n/s/e/w), use, stats, save, load, or q to quit: ")
 		var input string
 		fmt.Scanln(&input)
 		input = strings.TrimSpace(input)
@@ -139,11 +136,29 @@ func startGame() {
 			item := player.Inventory[choice-1]
 			item.Use(player)
 
-			// Remove potions after use
 			switch item.(type) {
 			case game.Potion:
 				player.Inventory = append(player.Inventory[:choice-1], player.Inventory[choice:]...)
 			}
+			continue
+
+		case "save":
+			err := game.SaveGame("save.json", player, dungeon)
+			if err != nil {
+				fmt.Println("❌ Error saving game:", err)
+			}
+			continue
+
+		case "load":
+			loadedPlayer, loadedDungeon, err := game.LoadGame("save.json")
+			if err != nil {
+				fmt.Println("❌ Error loading game:", err)
+				continue
+			}
+			player = loadedPlayer
+			dungeon = loadedDungeon
+			fmt.Println("✅ Game state restored.")
+			dungeon.DisplayCurrentRoom()
 			continue
 
 		default:
