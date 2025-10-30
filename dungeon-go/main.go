@@ -29,6 +29,22 @@ func startGame() {
 
 	player := game.NewPlayer(name)
 	fmt.Printf("\nWelcome, %s the Brave!\n", player.Name)
-
 	player.ShowStats()
+
+	dungeon := game.NewDungeon(5, 5)
+	fmt.Println("🗺️  A mysterious dungeon appears...")
+	dungeon.DisplayCurrentRoom()
+
+	for {
+		fmt.Print("\nMove (n/s/e/w) or q to quit: ")
+		var input string
+		fmt.Scanln(&input)
+
+		if input == "q" {
+			fmt.Println("You have chosen to leave the dungeon.")
+			break
+		}
+
+		dungeon.MovePlayer(input)
+	}
 }
