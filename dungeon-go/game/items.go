@@ -1,54 +1,86 @@
 package game
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
+	"time"
 )
 
-// Item is a general interface for usable or collectible objects
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+// Item interface
 type Item interface {
 	Name() string
-	Use(p *Player)
+	Use(*Player)
 }
 
-// Potion restores HP when used
+// Potion struct
 type Potion struct {
-	HealAmount int
+	Heal int
 }
 
-func (potion Potion) Name() string {
-	return fmt.Sprintf("Health Potion (+%d HP)", potion.HealAmount)
+func (p Potion) Name() string { return fmt.Sprintf("Health Potion (+%d HP)", p.Heal) }
+func (p Potion) Use(player *Player) {
+	player.HP += p.Heal
+	fmt.Printf("💖 You drink the potion and restore %d HP. (HP: %d)\n", p.Heal, player.HP)
 }
 
-func (potion Potion) Use(p *Player) {
-	p.HP += potion.HealAmount
-	if p.HP > 100 {
-		p.HP = 100
-	}
-	fmt.Printf("💖 You drink the potion and restore %d HP. (HP: %d)\n", potion.HealAmount, p.HP)
-}
-
-// Weapon increases attack stat
+// Weapon struct
 type Weapon struct {
-	WeaponName string
-	Bonus      int
+	NameStr string
+	Attack  int
 }
 
-func (w Weapon) Name() string {
-	return fmt.Sprintf("%s (+%d Attack)", w.WeaponName, w.Bonus)
+func (w Weapon) Name() string { return fmt.Sprintf("%s (+%d ATK)", w.NameStr, w.Attack) }
+func (w Weapon) Use(player *Player) {
+	player.Attack += w.Attack
+	fmt.Printf("⚔️ You equip %s! (Attack: %d)\n", w.Name(), player.Attack)
 }
 
-func (w Weapon) Use(p *Player) {
-	p.Attack += w.Bonus
-	fmt.Printf("⚔️  You equip the %s! Attack increased by %d (Now: %d)\n", w.WeaponName, w.Bonus, p.Attack)
+// --- JSON Wrapper ---
+
+type SaveItem struct {
+	Type string          `json:"type"`
+	Data json.RawMessage `json:"data"`
 }
 
-// GenerateRandomItem returns a random item instance
-func GenerateRandomItem() Item {
-	roll := rand.Intn(100)
-	if roll < 60 {
-		return Potion{HealAmount: 20 + rand.Intn(10)}
+// Converts Item to SaveItem
+func WrapItem(item Item) (SaveItem, error) {
+	var data []byte
+	var err error
+	switch v := item.(type) {
+	case Potion:
+		data, err = json.Marshal(v)
+		if err != nil {
+			return SaveItem{}, err
+		}
+		return SaveItem{Type: "Potion", Data: data}, nil
+	case Weapon:
+		data, err = json.Marshal(v)
+		if err != nil {
+			return SaveItem{}, err
+		}
+		return SaveItem{Type: "Weapon", Data: data}, nil
+	default:
+		return SaveItem{}, fmt.Errorf("unknown item type")
 	}
-	names := []string{"Iron Sword", "Silver Dagger", "Magic Spear"}
-	return Weapon{WeaponName: names[rand.Intn(len(names))], Bonus: 3 + rand.Intn(4)}
+}
+
+// Converts SaveItem back to Item
+func UnwrapItem(s SaveItem) (Item, error) {
+	switch s.Type {
+	case "Potion":
+		var p Potion
+		err := json.Unmarshal(s.Data, &p)
+		return p, err
+	case "Weapon":
+		var w Weapon
+		err := json.Unmarshal(s.Data, &w)
+		return w, err
+	default:
+		return nil, fmt.Errorf("unknown save item type: %s", s.Type)
+	}
 }

@@ -11,8 +11,8 @@ type Player struct {
 	HP        int
 	Attack    int
 	Defense   int
-	Inventory []Item
 	Level     int
+	Inventory []Item
 }
 
 // NewPlayer creates and returns a new Player

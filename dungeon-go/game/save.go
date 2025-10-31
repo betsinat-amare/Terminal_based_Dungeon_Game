@@ -6,17 +6,27 @@ import (
 	"os"
 )
 
-// SaveData defines the overall game state we serialize
 type SaveData struct {
-	Player  Player
-	Dungeon Dungeon
+	Player  Player     `json:"player"`
+	Dungeon Dungeon    `json:"dungeon"`
+	Items   []SaveItem `json:"items"` // serialized inventory
 }
 
-// SaveGame writes the current player and dungeon state to a file
+// SaveGame writes player, dungeon, and inventory
 func SaveGame(filename string, player *Player, dungeon *Dungeon) error {
+	items := []SaveItem{}
+	for _, item := range player.Inventory {
+		wrapped, err := WrapItem(item)
+		if err != nil {
+			return err
+		}
+		items = append(items, wrapped)
+	}
+
 	data := SaveData{
 		Player:  *player,
 		Dungeon: *dungeon,
+		Items:   items,
 	}
 
 	file, err := os.Create(filename)
@@ -27,8 +37,7 @@ func SaveGame(filename string, player *Player, dungeon *Dungeon) error {
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
-	err = encoder.Encode(data)
-	if err != nil {
+	if err := encoder.Encode(data); err != nil {
 		return fmt.Errorf("could not encode save data: %v", err)
 	}
 
@@ -36,7 +45,7 @@ func SaveGame(filename string, player *Player, dungeon *Dungeon) error {
 	return nil
 }
 
-// LoadGame loads the saved game state from a file
+// LoadGame restores player, dungeon, and inventory
 func LoadGame(filename string) (*Player, *Dungeon, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -46,10 +55,20 @@ func LoadGame(filename string) (*Player, *Dungeon, error) {
 
 	var data SaveData
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&data)
-	if err != nil {
+	if err := decoder.Decode(&data); err != nil {
 		return nil, nil, fmt.Errorf("could not decode save data: %v", err)
 	}
+
+	// Unwrap items
+	inventory := []Item{}
+	for _, s := range data.Items {
+		item, err := UnwrapItem(s)
+		if err != nil {
+			return nil, nil, fmt.Errorf("could not restore item: %v", err)
+		}
+		inventory = append(inventory, item)
+	}
+	data.Player.Inventory = inventory
 
 	fmt.Printf("📂 Game loaded from %s!\n", filename)
 	return &data.Player, &data.Dungeon, nil

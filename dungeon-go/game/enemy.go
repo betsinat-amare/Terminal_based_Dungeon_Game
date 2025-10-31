@@ -60,6 +60,12 @@ func (e *Enemy) AttackPlayer(p *Player) int {
 }
 
 // PossibleLoot returns a random loot string (or empty == nothing)
+func GenerateRandomItem() Item {
+	// Placeholder implementation to satisfy compile; replace with real item generation.
+	// Returning nil by default; implement actual item creation in this function as needed.
+	return nil
+}
+
 func (e *Enemy) PossibleLoot() Item {
 	chance := rand.Intn(100)
 	if chance < 40 {

@@ -13,6 +13,7 @@ func main() {
 	fmt.Println(game.Cyan + "Welcome to Terminal Dungeon 🏰" + game.Reset)
 	fmt.Println(strings.Repeat("-", 40))
 	fmt.Println("1. Start New Game")
+	fmt.Println("load. Load Saved Game")
 	fmt.Println("2. Exit")
 
 	reader := bufio.NewReader(os.Stdin)
@@ -23,6 +24,13 @@ func main() {
 	switch input {
 	case "1":
 		startGame()
+	case "load":
+		player, dungeon, err := game.LoadGame("save.json")
+		if err != nil {
+			fmt.Println(game.Red + "❌ Error loading game: " + err.Error() + game.Reset)
+			return
+		}
+		startGameWithState(player, dungeon)
 	case "2":
 		fmt.Println(game.Yellow + "Goodbye, adventurer!" + game.Reset)
 	default:
@@ -44,6 +52,20 @@ func startGame() {
 	dungeon := game.NewDungeon(5, 5)
 	fmt.Println(game.Cyan + "🗺️  A mysterious dungeon appears..." + game.Reset)
 	dungeon.DisplayCurrentRoom()
+
+	gameLoop(player, dungeon)
+}
+
+func startGameWithState(player *game.Player, dungeon *game.Dungeon) {
+	fmt.Printf("\n"+game.Green+"Welcome back, %s!\n"+game.Reset, player.Name)
+	player.ShowStats()
+	dungeon.DisplayCurrentRoom()
+
+	gameLoop(player, dungeon)
+}
+
+func gameLoop(player *game.Player, dungeon *game.Dungeon) {
+	reader := bufio.NewReader(os.Stdin)
 
 	for {
 		// Check for enemy
@@ -70,7 +92,6 @@ func startGame() {
 
 				if choice == "f" {
 					for enemy.IsAlive() && player.IsAlive() {
-						// Player attacks
 						dmg := player.AttackEnemy(enemy)
 						fmt.Printf("%sYou strike the %s for %d damage! (Enemy HP: %d)%s\n", game.Green, enemy.Name, dmg, enemy.HP, game.Reset)
 
@@ -87,7 +108,6 @@ func startGame() {
 							break
 						}
 
-						// Enemy attacks
 						edmg := enemy.AttackPlayer(player)
 						remaining := player.TakeDamage(edmg)
 						fmt.Printf("%sThe %s hits you for %d! (Your HP: %d)%s\n", game.Red, enemy.Name, edmg, remaining, game.Reset)
@@ -106,9 +126,8 @@ func startGame() {
 
 		// Player actions
 		fmt.Print("\nAction → move (n/s/e/w), use, stats, save, load, or q to quit: ")
-		var input string
-		fmt.Scanln(&input)
-		input = strings.TrimSpace(input)
+		inputRaw, _ := reader.ReadString('\n')
+		input := strings.TrimSpace(inputRaw)
 
 		switch input {
 		case "q":
